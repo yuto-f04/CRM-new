@@ -1,0 +1,9 @@
+﻿{
+  "terminal.integrated.cwd": "${workspaceFolder}/crm-app",
+  "terminal.integrated.splitCwd": "workspaceRoot",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": { "source": "PowerShell", "icon": "terminal-powershell" },
+    "Git Bash": { "path": "C:\\Program Files\\Git\\bin\\bash.exe", "icon": "terminal-bash" }
+  }
+}
