@@ -1,5 +1,6 @@
 ﻿# CRM NEW – Runbook (Step1)
 正式なアプリは `crm-app/`。ルートの pnpm スクリプトは **すべて crm-app に委譲** します。
+> ※ ルート（`pnpm --dir crm-app` 経由）と `crm-app` ディレクトリ内のどちらでコマンドを実行するかは混在させず、どちらか一方に統一してください。
 
 ## 0) Postgres が無い人は最速で用意（任意）
 ```bash
@@ -74,3 +75,4 @@ git push -u origin main
 - 症状: `開始ディレクトリ (cwd) "//crm-app" が存在しません`
 - 対処: `.vscode/settings.json` の `terminal.integrated.cwd` を `${workspaceFolder}/crm-app` にするか、設定ごと削除。
 - 代替: エクスプローラで `crm-app` を右クリック → 「統合ターミナルで開く」。
+- package.json が壊れた / Next.js が動かない → ルートの package.json を UTF-8 (BOMなし) で保存し直し、必要なら `.next` フォルダを削除して再ビルド。
