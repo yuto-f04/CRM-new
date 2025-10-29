@@ -2,10 +2,10 @@
 import { redirect } from 'next/navigation';
 
 import { LoginForm } from '@/components/login-form';
-import { getAuthSession } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
 export default async function LoginPage() {
-  const session = await getAuthSession();
+  const session = await auth();
   if (session) {
     redirect('/dashboard');
   }

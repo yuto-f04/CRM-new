@@ -2,11 +2,11 @@
 import { redirect } from 'next/navigation';
 
 import { SignOutButton } from '@/components/sign-out-button';
-import { getAuthSession } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { hasAtLeastManager, isAdmin } from '@/lib/rbac';
 
 export default async function DashboardPage() {
-  const session = await getAuthSession();
+  const session = await auth();
 
   if (!session) {
     redirect('/login');

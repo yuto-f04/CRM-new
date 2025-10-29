@@ -8,11 +8,14 @@ export default withAuth(
       return NextResponse.redirect(new URL('/login', req.url));
     }
 
-    if (req.nextUrl.pathname.startsWith('/api/admin') && token.role !== 'admin') {
+    const role = token.role;
+    const canManage = role === 'admin' || role === 'manager';
+
+    if (req.nextUrl.pathname.startsWith('/api/admin') && !canManage) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (req.nextUrl.pathname.startsWith('/admin') && token.role !== 'admin') {
+    if (req.nextUrl.pathname.startsWith('/admin') && !canManage) {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 

@@ -20,6 +20,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
+    "bcryptjs": "^2.4.3",
     "next-auth": "^4.24.12"
   }
 }

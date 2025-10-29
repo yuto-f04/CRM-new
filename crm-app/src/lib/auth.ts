@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client';
 import { getServerSession, type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
 import { prisma } from '@/lib/prisma';
@@ -11,6 +11,8 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
+const DEFAULT_ROLE: Role = 'member';
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -19,7 +21,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      authorize: async (credentials) => {
+      async authorize(credentials) {
         const parsed = credentialsSchema.safeParse(credentials);
         if (!parsed.success) {
           return null;
@@ -45,7 +47,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role ?? DEFAULT_ROLE,
         };
       },
     }),
@@ -55,23 +57,23 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   callbacks: {
-    jwt: async ({ token, user }) => {
+    async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        token.role = (user as { role?: Role }).role;
+        token.role = (user as { role?: Role }).role ?? token.role ?? DEFAULT_ROLE;
+      } else if (!token.role) {
+        token.role = DEFAULT_ROLE;
       }
       return token;
     },
-    session: async ({ session, token }) => {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub ?? '';
-        session.user.role = (token.role as Role) ?? 'viewer';
+        session.user.role = (token.role as Role) ?? DEFAULT_ROLE;
       }
       return session;
     },
   },
 };
 
-export function getAuthSession() {
-  return getServerSession(authOptions);
-}
+export const auth = () => getServerSession(authOptions);

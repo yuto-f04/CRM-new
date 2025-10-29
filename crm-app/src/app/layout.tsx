@@ -1,7 +1,8 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Inter, Roboto_Mono } from 'next/font/google';
 
 import { Providers } from '@/components/providers';
+import { auth } from '@/lib/auth';
 
 import './globals.css';
 
@@ -20,15 +21,17 @@ export const metadata: Metadata = {
   description: 'Secure CRM administration surface with RBAC.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
-    <html lang="en">
+    <html lang="ja">
       <body className={`${sans.variable} ${mono.variable} antialiased`}>
-        <Providers>
+        <Providers session={session}>
           <div className="app-shell">{children}</div>
         </Providers>
       </body>
