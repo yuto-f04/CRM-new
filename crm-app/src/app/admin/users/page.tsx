@@ -40,8 +40,8 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="stack bg-white text-gray-900">
-      <section className="card bg-card text-card-foreground">
+    <div className="stack bg-background text-foreground">
+      <section className="card bg-white text-foreground">
         <div className="page-header">
           <div>
             <h1 className="text-2xl font-bold text-foreground">ユーザー管理</h1>
@@ -56,11 +56,11 @@ export default async function AdminUsersPage() {
         </p>
       </section>
 
-      <section className="card bg-card text-card-foreground">
+      <section className="card bg-white text-foreground">
         <UsersClient canManage={canManage} />
       </section>
 
-      <section className="card bg-card text-card-foreground">
+      <section className="card bg-white text-foreground">
         <h2 className="text-xl font-semibold text-foreground">既存ユーザー</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="table">
@@ -88,7 +88,7 @@ export default async function AdminUsersPage() {
                         <input type="hidden" name="userId" value={user.id} />
                         <select
                           name="role"
-                          className="select bg-card text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="select bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                           defaultValue={user.role}
                           disabled={disabled}
                         >

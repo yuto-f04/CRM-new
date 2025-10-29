@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="bg-white text-gray-900">
+    <div className="bg-background text-foreground">
       <section className="mx-auto max-w-5xl p-6">
         <header className="flex items-start justify-between gap-4">
           <div>
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
 
         <section className="mt-8">
           <h2 className="text-xl font-semibold text-foreground">Quick links</h2>
-          <ul className="mt-3 flex flex-col gap-2 text-sm text-foreground/80">
+          <ul className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
             {items
               .filter((item) => !item.requireAdmin || isAdmin(session))
               .map((item) => (
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
 
         <section className="mt-8">
           <h2 className="text-xl font-semibold text-foreground">Current access</h2>
-          <ul className="mt-3 flex flex-col gap-2 text-sm text-foreground/80">
+          <ul className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
             <li>
               Role: <span className="font-semibold text-foreground">{session.user.role}</span>
             </li>

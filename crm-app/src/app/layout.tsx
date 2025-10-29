@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <meta name="color-scheme" content="light" />
       </head>
-      <body className={cn("min-h-screen bg-white text-gray-900 antialiased", inter.className)}>
+      <body className={cn("min-h-screen bg-background text-foreground antialiased", inter.className)}>
         <AppProviders>
           <SessionProviders session={session}>
             <div className="app-shell">{children}</div>
