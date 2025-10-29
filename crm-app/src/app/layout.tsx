@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
 
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html lang="ja" className="light" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light" />
       </head>
