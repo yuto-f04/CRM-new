@@ -18,35 +18,41 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="card">
+    <div className="card bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50">
       <div className="page-header">
         <div>
-          <h1>Dashboard</h1>
-          <p>
-            Welcome back, {session.user.name ?? session.user.email}. You are signed in as <strong>{session.user.role}</strong>.
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">Dashboard</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            Welcome back, {session.user.name ?? session.user.email}. You are signed in as{' '}
+            <span className="font-semibold text-gray-900 dark:text-gray-50">{session.user.role}</span>.
           </p>
         </div>
         <SignOutButton />
       </div>
 
-      <section style={{ marginTop: '1.5rem' }}>
-        <h2>Quick links</h2>
-        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <section className="mt-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Quick links</h2>
+        <ul className="mt-3 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-200">
           {items
             .filter((item) => !item.requireAdmin || isAdmin(session))
             .map((item) => (
               <li key={item.href}>
-                <Link href={item.href}>{item.label}</Link>
+                <Link href={item.href} className="underline decoration-gray-400 hover:decoration-gray-600 dark:decoration-gray-500">
+                  {item.label}
+                </Link>
               </li>
             ))}
         </ul>
       </section>
 
-      <section style={{ marginTop: '2rem' }}>
-        <h2>Current access</h2>
-        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Current access</h2>
+        <ul className="mt-3 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-200">
           <li>
-            Role: <strong>{session.user.role}</strong>
+            Role:{' '}
+            <span className="font-semibold text-gray-900 dark:text-gray-50">
+              {session.user.role}
+            </span>
           </li>
           <li>Manager privileges: {hasAtLeastManager(session) ? 'Yes' : 'No'}</li>
           <li>Email: {session.user.email}</li>

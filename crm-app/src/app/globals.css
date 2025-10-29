@@ -1,28 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
@@ -51,11 +61,17 @@ body {
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: 12px;
   padding: 1.75rem;
   box-shadow: 0 12px 20px rgba(15, 23, 42, 0.04);
+  color: hsl(var(--card-foreground));
+  color-scheme: light;
+}
+
+.dark .card {
+  color-scheme: dark;
 }
 
 .card + .card {
@@ -95,12 +111,32 @@ body {
 .select,
 .textarea {
   width: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.16);
+  border: 1px solid hsl(var(--border));
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   font-size: 0.95rem;
   background-color: #ffffff;
-  color: inherit;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
+  caret-color: #111827;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  background-color: #ffffff;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
+  border-color: rgba(15, 23, 42, 0.4);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
+}
+
+.input::placeholder,
+.select::placeholder,
+.textarea::placeholder {
+  color: #9ca3af;
+  -webkit-text-fill-color: #9ca3af;
 }
 
 .button {
@@ -178,7 +214,8 @@ body {
 .table td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid hsl(var(--border));
+  color: #111827;
 }
 
 .table tbody tr:hover {

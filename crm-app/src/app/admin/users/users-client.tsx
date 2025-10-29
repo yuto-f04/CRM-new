@@ -47,43 +47,43 @@ export default function UsersClient({ canManage }: Props) {
   }
 
   return (
-    <section className="form-stack">
-      <h2>新しいユーザーを作成</h2>
+    <section className="form-stack text-gray-900">
+      <h2 className="text-xl font-semibold text-gray-900">新しいユーザーを作成</h2>
       <fieldset disabled={disabled} className="form-grid" style={{ border: 'none', padding: 0, margin: 0 }}>
         <label className="form-group">
-          <span className="text-sm text-gray-600">氏名</span>
+          <span className="text-sm text-gray-700">氏名</span>
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="山田 太郎"
-            className="input"
+            className="input bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/30"
           />
         </label>
         <label className="form-group">
-          <span className="text-sm text-gray-600">メールアドレス</span>
+          <span className="text-sm text-gray-700">メールアドレス</span>
           <input
             type="email"
             inputMode="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="user@example.com"
-            className="input"
+            className="input bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/30"
           />
         </label>
         <label className="form-group">
-          <span className="text-sm text-gray-600">仮パスワード（8文字以上）</span>
+          <span className="text-sm text-gray-700">仮パスワード（8文字以上）</span>
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="At least 8 characters"
-            className="input"
+            className="input bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/30"
           />
         </label>
         <button
           type="button"
           onClick={handleCreate}
-          className="button"
+          className="button disabled:opacity-50"
           disabled={disabled}
           style={{ marginTop: '0.5rem' }}
         >
@@ -91,7 +91,7 @@ export default function UsersClient({ canManage }: Props) {
         </button>
       </fieldset>
       {!canManage && (
-        <p className="form-error" style={{ marginTop: '0.5rem' }}>
+        <p className="form-error" style={{ marginTop: '0.5rem', color: '#dc2626' }}>
           この操作を行う権限がありません（管理者またはマネージャーとしてログインしてください）。
         </p>
       )}

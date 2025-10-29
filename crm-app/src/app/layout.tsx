@@ -29,7 +29,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <body className={`${sans.variable} ${mono.variable} antialiased`}>
         <Providers session={session}>
           <div className="app-shell">{children}</div>
