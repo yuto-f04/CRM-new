@@ -16,9 +16,15 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.90.2
         version: 5.90.2(@tanstack/react-query@5.90.5(react@18.2.0))(react@18.2.0)
+      bcryptjs:
+        specifier: ^2.4.3
+        version: 2.4.3
       next-auth:
         specifier: ^4.24.12
         version: 4.24.12(next@16.0.0(react-dom@19.2.0(react@18.2.0))(react@18.2.0))(react-dom@19.2.0(react@18.2.0))(react@18.2.0)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.0(react@18.2.0))(react@18.2.0)
     devDependencies:
       '@types/node':
         specifier: ^24.9.1
@@ -395,6 +401,9 @@ packages:
   '@types/node@24.9.1':
     resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
 
+  bcryptjs@2.4.3:
+    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
+
   caniuse-lite@1.0.30001751:
     resolution: {integrity: sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==}
 
@@ -454,6 +463,12 @@ packages:
         optional: true
       nodemailer:
         optional: true
+
+  next-themes@0.4.6:
+    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
 
   next@16.0.0:
     resolution: {integrity: sha512-nYohiNdxGu4OmBzggxy9rczmjIGI+TpR5vbKTsE1HqYwNm1B+YSiugSrFguX6omMOKnDHAmBPY4+8TNJk0Idyg==}
@@ -794,6 +809,8 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
+  bcryptjs@2.4.3: {}
+
   caniuse-lite@1.0.30001751: {}
 
   client-only@0.0.1: {}
@@ -867,6 +884,11 @@ snapshots:
       react: 18.2.0
       react-dom: 19.2.0(react@18.2.0)
       uuid: 8.3.2
+
+  next-themes@0.4.6(react-dom@19.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      react: 18.2.0
+      react-dom: 19.2.0(react@18.2.0)
 
   next@16.0.0(react-dom@19.2.0(react@18.2.0))(react@18.2.0):
     dependencies:

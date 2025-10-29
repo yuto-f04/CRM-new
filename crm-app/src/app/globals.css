@@ -1,39 +1,39 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
+  --card-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
 }
 
+/* 予備（今は使わないが残す） */
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
 }
 
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  margin: 0;
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
 }
 
 .app-shell {
@@ -67,11 +67,6 @@ body {
   padding: 1.75rem;
   box-shadow: 0 12px 20px rgba(15, 23, 42, 0.04);
   color: hsl(var(--card-foreground));
-  color-scheme: light;
-}
-
-.dark .card {
-  color-scheme: dark;
 }
 
 .card + .card {
@@ -115,19 +110,19 @@ body {
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   font-size: 0.95rem;
-  background-color: #ffffff;
-  color: #111827;
-  -webkit-text-fill-color: #111827;
-  caret-color: #111827;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  -webkit-text-fill-color: hsl(var(--card-foreground));
+  caret-color: hsl(var(--card-foreground));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  background-color: #ffffff;
-  color: #111827;
-  -webkit-text-fill-color: #111827;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  -webkit-text-fill-color: hsl(var(--card-foreground));
   border-color: rgba(15, 23, 42, 0.4);
   box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
 }
@@ -135,8 +130,8 @@ body {
 .input::placeholder,
 .select::placeholder,
 .textarea::placeholder {
-  color: #9ca3af;
-  -webkit-text-fill-color: #9ca3af;
+  color: hsl(var(--muted-foreground));
+  -webkit-text-fill-color: hsl(var(--muted-foreground));
 }
 
 .button {
@@ -202,7 +197,7 @@ body {
   text-align: left;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
-  color: rgba(15, 23, 42, 0.7);
+  color: hsl(var(--muted-foreground));
 }
 
 .table {
@@ -215,7 +210,7 @@ body {
   padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid hsl(var(--border));
-  color: #111827;
+  color: hsl(var(--card-foreground));
 }
 
 .table tbody tr:hover {
