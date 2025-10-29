@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="bg-card text-card-foreground">
+    <div className="bg-white text-gray-900">
       <section className="mx-auto max-w-5xl p-6">
         <header className="flex items-start justify-between gap-4">
           <div>

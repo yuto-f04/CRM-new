@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import type { Metadata } from "next";
 
 import "./globals.css";
-import Providers from "./providers";
-import { AppProviders } from "@/components/app-providers";
+import AppProviders from "./app-providers";
+import { AppProviders as SessionProviders } from "@/components/app-providers";
 import { auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,16 +20,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
 
   return (
-    <html lang="ja" className="light" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light" />
       </head>
-      <body className={cn("min-h-screen bg-background text-foreground antialiased", inter.className)}>
-        <Providers>
-          <AppProviders session={session}>
+      <body className={cn("min-h-screen bg-white text-gray-900 antialiased", inter.className)}>
+        <AppProviders>
+          <SessionProviders session={session}>
             <div className="app-shell">{children}</div>
-          </AppProviders>
-        </Providers>
+          </SessionProviders>
+        </AppProviders>
       </body>
     </html>
   );

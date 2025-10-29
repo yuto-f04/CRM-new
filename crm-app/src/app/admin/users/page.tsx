@@ -40,7 +40,7 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="stack bg-background text-foreground">
+    <div className="stack bg-white text-gray-900">
       <section className="card bg-card text-card-foreground">
         <div className="page-header">
           <div>
