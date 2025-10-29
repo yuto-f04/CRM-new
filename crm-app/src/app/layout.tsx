@@ -1,7 +1,7 @@
+import "./globals.css";
+
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-
-import "./globals.css";
 import AppProviders from "./app-providers";
 import { AppProviders as SessionProviders } from "@/components/app-providers";
 import { auth } from "@/lib/auth";
@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
 
   return (
-    <html lang="ja" className="light" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light" />
       </head>
