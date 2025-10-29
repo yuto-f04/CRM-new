@@ -14,10 +14,12 @@
     "seed": "tsx prisma/seed.ts"
   },
   "devDependencies": {
+    "@types/node": "^24.9.1",
     "tsx": "^4.19.0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.5",
-    "@tanstack/react-query-devtools": "^5.90.2"
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "next-auth": "^4.24.12"
   }
 }
