@@ -1,37 +1,34 @@
-import type { Metadata } from 'next';
-import { Inter, Roboto_Mono } from 'next/font/google';
-
-import { Providers } from "./providers";
-import { auth } from "@/lib/auth";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
 import "./globals.css";
+import Providers from "./providers";
+import { AppProviders } from "@/components/app-providers";
+import { auth } from "@/lib/auth";
 
-const sans = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
-const mono = Roboto_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+function cn(...inputs: Array<string | false | undefined>) {
+  return inputs.filter(Boolean).join(" ");
+}
 
 export const metadata: Metadata = {
   title: "CRM Admin Portal",
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   return (
-    <html lang="ja" suppressHydrationWarning>
-      <body className={`${sans.variable} ${mono.variable} min-h-screen bg-background text-foreground`}>
-        <Providers session={session}>
-          <div className="app-shell">{children}</div>
+    <html lang="ja" className="light" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light" />
+      </head>
+      <body className={cn("min-h-screen bg-background text-foreground antialiased", inter.className)}>
+        <Providers>
+          <AppProviders session={session}>
+            <div className="app-shell">{children}</div>
+          </AppProviders>
         </Providers>
       </body>
     </html>

@@ -18,45 +18,44 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="card bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50">
-      <div className="page-header">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Welcome back, {session.user.name ?? session.user.email}. You are signed in as{' '}
-            <span className="font-semibold text-gray-900 dark:text-gray-50">{session.user.role}</span>.
-          </p>
-        </div>
-        <SignOutButton />
-      </div>
+    <div className="bg-card text-card-foreground">
+      <section className="mx-auto max-w-5xl p-6">
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Welcome back, {session.user.name ?? session.user.email}. You are signed in as{" "}
+              <span className="font-medium text-foreground">{session.user.role}</span>.
+            </p>
+          </div>
+          <SignOutButton />
+        </header>
 
-      <section className="mt-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Quick links</h2>
-        <ul className="mt-3 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-200">
-          {items
-            .filter((item) => !item.requireAdmin || isAdmin(session))
-            .map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="underline decoration-gray-400 hover:decoration-gray-600 dark:decoration-gray-500">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-        </ul>
-      </section>
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold text-foreground">Quick links</h2>
+          <ul className="mt-3 flex flex-col gap-2 text-sm text-foreground/80">
+            {items
+              .filter((item) => !item.requireAdmin || isAdmin(session))
+              .map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="underline decoration-muted-foreground hover:decoration-foreground">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </section>
 
-      <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Current access</h2>
-        <ul className="mt-3 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-200">
-          <li>
-            Role:{' '}
-            <span className="font-semibold text-gray-900 dark:text-gray-50">
-              {session.user.role}
-            </span>
-          </li>
-          <li>Manager privileges: {hasAtLeastManager(session) ? 'Yes' : 'No'}</li>
-          <li>Email: {session.user.email}</li>
-        </ul>
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold text-foreground">Current access</h2>
+          <ul className="mt-3 flex flex-col gap-2 text-sm text-foreground/80">
+            <li>
+              Role: <span className="font-semibold text-foreground">{session.user.role}</span>
+            </li>
+            <li>Manager privileges: {hasAtLeastManager(session) ? "Yes" : "No"}</li>
+            <li>Email: {session.user.email}</li>
+          </ul>
+        </section>
       </section>
     </div>
   );
