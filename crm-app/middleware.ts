@@ -1,36 +1,34 @@
-import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    if (!token?.role) {
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
+const PUBLIC = ["/login", "/api/auth"];
 
-    const role = token.role;
-    const canManage = role === 'admin' || role === 'manager';
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-    if (req.nextUrl.pathname.startsWith('/api/admin') && !canManage) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (req.nextUrl.pathname.startsWith('/admin') && !canManage) {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-
+  if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  if (pathname.startsWith("/_next") || pathname.startsWith("/favicon")) {
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => Boolean(token),
-    },
-    pages: {
-      signIn: '/login',
-    },
   }
-);
+
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  if (!token?.sub) {
+    const url = new URL("/login", req.url);
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // /admin routes require the admin role
+  // @ts-ignore
+  const role = token.role as string | undefined;
+  if (pathname.startsWith("/admin") && role !== "admin") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/api/admin/:path*'],
+  matcher: ["/((?!.*\\.).*)"],
 };

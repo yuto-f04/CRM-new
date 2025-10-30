@@ -1,5 +1,6 @@
-import { type Role } from '@prisma/client';
 import { type Session } from 'next-auth';
+
+type Role = 'viewer' | 'member' | 'manager' | 'admin';
 
 const roleRank: Record<Role, number> = {
   viewer: 0,

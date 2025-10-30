@@ -1,10 +1,9 @@
-import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-
-import { type Role } from "@prisma/client";
+import Link from "next/link";
 
 import { SignOutButton } from "@/components/sign-out-button";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ROLE_OPTIONS } from "@/lib/roles";
 
@@ -14,6 +13,8 @@ import { toggleUserActiveAction, updateUserRoleAction } from "./actions";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+type Role = (typeof ROLE_OPTIONS)[number];
+
 const ROLE_LABELS: Record<Role, string> = {
   admin: "管理者",
   manager: "マネージャー",
@@ -22,21 +23,15 @@ const ROLE_LABELS: Record<Role, string> = {
 };
 
 export default async function AdminUsersPage() {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    redirect("/login");
-  }
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
+  if (session.user?.role !== "admin") redirect("/dashboard");
 
   const role = (session.user.role ?? "member") as Role;
   const canManage = role === "admin" || role === "manager";
 
-  if (!canManage) {
-    redirect("/");
-  }
-
-  const users = await prisma.user.findMany({
-    orderBy: [{ createdAt: "asc" }],
+  const users = await prisma.users.findMany({
+    orderBy: [{ created_at: "asc" }],
   });
 
   return (
@@ -44,16 +39,14 @@ export default async function AdminUsersPage() {
       <section className="card bg-white text-foreground">
         <div className="page-header">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">ユーザー管理</h1>
+            <h1 className="text-2xl font-bold text-foreground">繝ｦ繝ｼ繧ｶ繝ｼ邂｡逅・/h1>
             <p className="text-sm text-muted-foreground">
-              管理者とマネージャーはユーザーの作成と権限変更ができます。その他のユーザーはこのページへアクセスできません。
-            </p>
+              邂｡逅・・→繝槭ロ繝ｼ繧ｸ繝｣繝ｼ縺ｯ繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ菴懈・縺ｨ讓ｩ髯仙､画峩縺後〒縺阪∪縺吶ゅ◎縺ｮ莉悶・繝ｦ繝ｼ繧ｶ繝ｼ縺ｯ縺薙・繝壹・繧ｸ縺ｸ繧｢繧ｯ繧ｻ繧ｹ縺ｧ縺阪∪縺帙ｓ縲・            </p>
           </div>
           <SignOutButton />
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          権限のある場合のみ、新規作成やステータス変更を行ってください。
-        </p>
+          讓ｩ髯舌・縺ゅｋ蝣ｴ蜷医・縺ｿ縲∵眠隕丈ｽ懈・繧・せ繝・・繧ｿ繧ｹ螟画峩繧定｡後▲縺ｦ縺上□縺輔＞縲・        </p>
       </section>
 
       <section className="card bg-white text-foreground">
@@ -61,17 +54,17 @@ export default async function AdminUsersPage() {
       </section>
 
       <section className="card bg-white text-foreground">
-        <h2 className="text-xl font-semibold text-foreground">既存ユーザー</h2>
+        <h2 className="text-xl font-semibold text-foreground">譌｢蟄倥Θ繝ｼ繧ｶ繝ｼ</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="table">
-            <caption className="text-sm text-muted-foreground">{users.length}名のユーザー</caption>
+            <caption className="text-sm text-muted-foreground">{users.length}蜷阪・繝ｦ繝ｼ繧ｶ繝ｼ</caption>
             <thead className="text-sm text-muted-foreground">
               <tr>
-                <th scope="col" className="text-left font-medium text-foreground">氏名</th>
-                <th scope="col" className="text-left font-medium text-foreground">メールアドレス</th>
-                <th scope="col" className="text-left font-medium text-foreground">権限</th>
-                <th scope="col" className="text-left font-medium text-foreground">ステータス</th>
-                <th scope="col" className="text-left font-medium text-foreground">操作</th>
+                <th scope="col" className="text-left font-medium text-foreground">豌丞錐</th>
+                <th scope="col" className="text-left font-medium text-foreground">繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ</th>
+                <th scope="col" className="text-left font-medium text-foreground">讓ｩ髯・/th>
+                <th scope="col" className="text-left font-medium text-foreground">繧ｹ繝・・繧ｿ繧ｹ</th>
+                <th scope="col" className="text-left font-medium text-foreground">謫堺ｽ・/th>
               </tr>
             </thead>
             <tbody>
@@ -99,21 +92,21 @@ export default async function AdminUsersPage() {
                           ))}
                         </select>
                         <button type="submit" className="button secondary disabled:opacity-50" disabled={disabled}>
-                          更新
+                          譖ｴ譁ｰ
                         </button>
                       </form>
                     </td>
-                    <td>{user.isActive ? "有効" : "無効"}</td>
+                    <td>{user.is_active ? "譛牙柑" : "辟｡蜉ｹ"}</td>
                     <td>
                       <form action={toggleUserActiveAction} className="inline-form">
                         <input type="hidden" name="userId" value={user.id} />
-                        <input type="hidden" name="isActive" value={(!user.isActive).toString()} />
+                        <input type="hidden" name="isActive" value={(!user.is_active).toString()} />
                         <button
                           type="submit"
-                          className={`button ${user.isActive ? "secondary" : ""} disabled:opacity-50`}
+                          className={`button ${user.is_active ? "secondary" : ""} disabled:opacity-50`}
                           disabled={disabled}
                         >
-                          {user.isActive ? "無効化" : "有効化"}
+                          {user.is_active ? "辟｡蜉ｹ蛹・ : "譛牙柑蛹・}
                         </button>
                       </form>
                     </td>
@@ -124,14 +117,12 @@ export default async function AdminUsersPage() {
           </table>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          無効化されたアカウントは再度有効化するまでサインインできません。少なくとも1名の管理者を有効に保ってください。
-        </p>
+          辟｡蜉ｹ蛹悶＆繧後◆繧｢繧ｫ繧ｦ繝ｳ繝医・蜀榊ｺｦ譛牙柑蛹悶☆繧九∪縺ｧ繧ｵ繧､繝ｳ繧､繝ｳ縺ｧ縺阪∪縺帙ｓ縲ょｰ代↑縺上→繧・蜷阪・邂｡逅・・ｒ譛牙柑縺ｫ菫昴▲縺ｦ縺上□縺輔＞縲・        </p>
       </section>
 
       <p className="text-sm text-muted-foreground">
         <Link href="/dashboard" className="text-foreground underline">
-          ダッシュボードへ戻る
-        </Link>
+          繝繝・す繝･繝懊・繝峨∈謌ｻ繧・        </Link>
       </p>
     </div>
   );

@@ -1,34 +1,35 @@
 {
   "name": "crm-app",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "cross-env NEXT_DISABLE_TURBOPACK=1 next dev -p 3000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000",
-    "clean": "rimraf .next node_modules/.cache",
-    "lint": "next lint",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --name init",
-    "db:seed": "prisma db seed"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.16",
-    "@types/node": "^24.9.1",
-    "autoprefixer": "^10.4.21",
-    "cross-env": "^7.0.3",
-    "postcss": "8",
-    "rimraf": "^5.0.5",
-    "tailwindcss": "^4.1.16",
-    "tsx": "^4.19.0"
+    "start": "next start",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.18.0",
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
     "bcryptjs": "^2.4.3",
-    "next-auth": "^4.24.12",
-    "next-themes": "^0.4.6"
+    "next": "^14.2.15",
+    "next-auth": "^4.24.13",
+    "next-themes": "^0.4.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^24.9.1",
+    "autoprefixer": "^10.4.21",
+    "postcss": "8",
+    "prisma": "^5.18.0",
+    "tailwindcss": "^4.1.16",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
   }
 }

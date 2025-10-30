@@ -1,14 +1,5 @@
-﻿{
-    "name":  "crm-new",
-    "private":  true,
-    "packageManager":  "pnpm@10.19.0",
-    "scripts":  {
-                    "dev":  "pnpm --dir crm-app dev",
-                    "build":  "pnpm --dir crm-app build",
-                    "start":  "pnpm --dir crm-app start",
-                    "lint":  "pnpm --dir crm-app lint",
-                    "db:generate":  "pnpm --dir crm-app db:generate",
-                    "db:migrate":  "pnpm --dir crm-app db:migrate",
-                    "db:seed":  "pnpm --dir crm-app db:seed"
-                }
+{
+  "name": "crm-new-root",
+  "private": true,
+  "version": "0.0.0"
 }

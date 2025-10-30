@@ -1,28 +1,76 @@
-﻿import Link from 'next/link';
-import { redirect } from 'next/navigation';
+"use client";
 
-import { LoginForm } from '@/components/login-form';
-import { auth } from '@/lib/auth';
+import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, type FormEvent } from "react";
 
-export default async function LoginPage() {
-  const session = await auth();
-  if (session) {
-    redirect('/dashboard');
+export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    setLoading(true);
+
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (res?.ok) {
+      const nextPath = searchParams?.get("next") || "/dashboard";
+      router.replace(nextPath);
+    } else {
+      setErr("メールまたはパスワードが正しくありません。");
+    }
   }
 
   return (
-    <div className="card" style={{ maxWidth: '420px', margin: '0 auto' }}>
-      <h1>Sign in</h1>
-      <p style={{ marginTop: 0, marginBottom: '1.5rem', color: 'rgba(15, 23, 42, 0.7)' }}>
-        Use your administrator credentials to access the CRM console.
-      </p>
-      <LoginForm />
-      <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'rgba(15, 23, 42, 0.7)' }}>
-        Need an account? Ask an administrator to provision it from the admin portal.
-      </p>
-      <p style={{ marginTop: '0.5rem' }}>
-        <Link href="/">Return to dashboard</Link>
-      </p>
+    <div className="app-shell">
+      <div className="card" style={{ maxWidth: 520 }}>
+        <h1>ログイン</h1>
+        <p>管理者の認証情報を入力してください。</p>
+        <form onSubmit={onSubmit} className="form-stack">
+          <label className="form-group">
+            <span>メールアドレス</span>
+            <input
+              className="input"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
+          <label className="form-group">
+            <span>パスワード</span>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </label>
+          {err ? <p className="form-error">{err}</p> : null}
+          <div className="form-actions">
+            <button className="button" disabled={loading}>
+              {loading ? "ログイン中..." : "ログイン"}
+            </button>
+          </div>
+        </form>
+        <div style={{ marginTop: 12 }}>
+          <Link href="/dashboard">ダッシュボードへ戻る</Link>
+        </div>
+      </div>
     </div>
   );
 }

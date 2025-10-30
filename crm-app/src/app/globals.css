@@ -2,70 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================
-   Light theme HARD LOCK
-   :root と .dark を同一にして常にライトにする
-   ============================ */
-@layer base {
-  :root,
-  .dark {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 35%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-
-    --ring: 215 20.2% 65.1%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --radius: 0.5rem;
-  }
-
-  /* UAの自動ダークを禁止（スクロールバーや背景の黒化対策） */
-  html {
-    color-scheme: light !important;
-  }
-
-  * {
-    @apply border-border;
-  }
-
-  html,
-  body {
-    height: 100%;
-  }
-
-  body {
-    @apply bg-background text-foreground antialiased;
-    min-height: 100vh;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    /* 変数→最終白フォールバックの順で二重化 */
-    background: hsl(var(--background)) !important;
-    color: hsl(var(--foreground)) !important;
-  }
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 35%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 215 20.2% 65.1%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --radius: 0.5rem;
 }
 
-/* Next.js ルートとアプリ外枠も白で固定 */
+html {
+  color-scheme: light !important;
+}
+
+.dark {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 35%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 215 20.2% 65.1%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+@layer base {
+  /* ここで全要素のデフォルト境界色を直接指定（v4で安全） */
+  * { border-color: hsl(var(--border)); }
+  body { @apply antialiased; }
+}
+
+body,
 #__next,
 [data-nextjs-root],
 .app-shell {
@@ -73,7 +70,6 @@
   color: hsl(var(--foreground)) !important;
 }
 
-/* ====== Layout helpers ====== */
 .app-shell {
   min-height: 100vh;
   width: 100%;
@@ -85,179 +81,6 @@
   gap: 2rem;
 }
 
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* ====== Card / UI primitives ====== */
-.card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 12px;
-  padding: 1.75rem;
-  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.04);
-  color: hsl(var(--card-foreground));
-}
-
-.card + .card {
-  margin-top: 1.5rem;
-}
-
-.card h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-}
-
-.card h1 {
-  margin: 0 0 1rem;
-  font-size: 1.75rem;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.form-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.input,
-.select,
-.textarea {
-  width: 100%;
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.95rem;
-  background-color: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-  -webkit-text-fill-color: hsl(var(--card-foreground));
-  caret-color: hsl(var(--card-foreground));
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.input:focus,
-.select:focus,
-.textarea:focus {
-  background-color: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-  -webkit-text-fill-color: hsl(var(--card-foreground));
-  border-color: rgba(15, 23, 42, 0.4);
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
-}
-
-.input::placeholder,
-.select::placeholder,
-.textarea::placeholder {
-  color: hsl(var(--muted-foreground));
-  -webkit-text-fill-color: hsl(var(--muted-foreground));
-}
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  border-radius: 8px;
-  border: none;
-  padding: 0.6rem 1.25rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: #0f172a;
-  color: #ffffff;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.button:hover {
-  background-color: #1e293b;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.button.secondary {
-  background: #e2e8f0;
-  color: #1f2937;
-}
-
-.button.danger {
-  background: #dc2626;
-}
-
-.form-error {
-  margin-top: 0.75rem;
-  color: #dc2626;
-  font-size: 0.9rem;
-}
-
-.form-success {
-  margin-top: 0.75rem;
-  color: #047857;
-  font-size: 0.9rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.inline-form {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.table caption {
-  text-align: left;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: hsl(var(--muted-foreground));
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid hsl(var(--border));
-  color: hsl(var(--card-foreground));
-}
-
-.table tbody tr:hover {
-  background: rgba(15, 23, 42, 0.04);
-}
-
-/* ====== 最終フォールバック（保険） ======
-   どこかで上書きされても白に戻す */
 html,
 body,
 #__next,

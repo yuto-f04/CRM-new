@@ -2,9 +2,10 @@ import "./globals.css";
 
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-import AppProviders from "./app-providers";
-import { AppProviders as SessionProviders } from "@/components/app-providers";
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import Providers from "@/components/providers";
+import ClientOnly from "@/components/client-only";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,30 +22,22 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
 
   return (
     <html lang="ja" className="light" suppressHydrationWarning>
       <head>
-        {/* UAのダーク配色を抑止 */}
         <meta name="color-scheme" content="light" />
-        <meta name="theme-color" content="#ffffff" />
       </head>
       <body
-        // 最優先のフォールバック（何があっても白/濃い文字）
         style={{ backgroundColor: "#fff", color: "#111" }}
-        className={cn(
-          "min-h-screen bg-background text-foreground antialiased",
-          inter.className
-        )}
+        className={cn("min-h-screen antialiased", inter.className)}
       >
-        <AppProviders>
-          <SessionProviders session={session}>
-            <div id="root-app" className="app-shell">
-              {children}
-            </div>
-          </SessionProviders>
-        </AppProviders>
+        <ClientOnly>
+          <Providers session={session}>
+            <div className="app-shell">{children}</div>
+          </Providers>
+        </ClientOnly>
       </body>
     </html>
   );

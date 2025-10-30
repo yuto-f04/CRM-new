@@ -1,4 +1,4 @@
-import { type Role } from '@prisma/client';
+type AppRole = 'admin' | 'manager' | 'member' | 'viewer';
 
 declare module 'next-auth' {
   interface Session {
@@ -7,7 +7,7 @@ declare module 'next-auth' {
       email: string | null;
       name: string | null;
       image?: string | null;
-      role?: Role;
+      role?: AppRole;
     };
   }
 
@@ -16,12 +16,12 @@ declare module 'next-auth' {
     email: string | null;
     name: string | null;
     image?: string | null;
-    role?: Role;
+    role?: AppRole;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    role?: Role;
+    role?: AppRole;
   }
 }

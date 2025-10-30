@@ -1,79 +1,58 @@
-import { Role } from '@prisma/client';
-import { getServerSession, type NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
+import type { NextAuthOptions, Session } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-import { prisma } from '@/lib/prisma';
-
-const credentialsSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-const DEFAULT_ROLE: Role = 'member';
+const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
+  session: { strategy: "jwt" },
   providers: [
-    CredentialsProvider({
-      name: 'Credentials',
+    Credentials({
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const parsed = credentialsSchema.safeParse(credentials);
-        if (!parsed.success) {
-          return null;
-        }
+      async authorize(c) {
+        const email = c?.email as string | undefined;
+        const password = c?.password as string | undefined;
+        if (!email || !password) return null;
 
-        const { email, password } = parsed.data;
-        const normalizedEmail = email.trim().toLowerCase();
+        const user = await prisma.users.findUnique({ where: { email } });
+        if (!user?.password_hash || user.is_active === false) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: normalizedEmail },
-        });
-
-        if (!user || !user.isActive) {
-          return null;
-        }
-
-        const passwordMatches = await bcrypt.compare(password, user.passwordHash);
-        if (!passwordMatches) {
-          return null;
-        }
+        const ok = await bcrypt.compare(password, user.password_hash);
+        if (!ok) return null;
 
         return {
           id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role ?? DEFAULT_ROLE,
-        };
+          name: user.name ?? null,
+          email: user.email ?? null,
+          // next-auth User type allows arbitrary props
+          role: user.role,
+        } as any;
       },
     }),
   ],
-  session: { strategy: 'jwt' },
-  pages: {
-    signIn: '/login',
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id;
-        token.role = (user as { role?: Role }).role ?? token.role ?? DEFAULT_ROLE;
-      } else if (!token.role) {
-        token.role = DEFAULT_ROLE;
+        // @ts-ignore
+        token.role = (user as any).role ?? "member";
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub ?? '';
-        session.user.role = (token.role as Role) ?? DEFAULT_ROLE;
-      }
+      (session as Session & { user: any }).user = {
+        id: (token.sub as string) || "",
+        name: session.user?.name ?? null,
+        email: session.user?.email ?? null,
+        // @ts-ignore
+        role: token.role ?? "member",
+      };
       return session;
     },
   },
+  // NEXTAUTH_SECRET must be set in .env
 };
-
-export const auth = () => getServerSession(authOptions);

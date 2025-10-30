@@ -1,23 +1,19 @@
-﻿import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = process.env.SEED_ADMIN_EMAIL;
-  const password = process.env.SEED_ADMIN_PASSWORD;
-  if (!email || !password) {
-    throw new Error('SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD are required');
-  }
-  const passwordHash = await bcrypt.hash(password, 12);
-  await prisma.user.upsert({
+  const email = "admin@local.test";
+  const password = "password12345";
+  const password_hash = await bcrypt.hash(password, 10);
+
+  await prisma.users.upsert({
     where: { email },
-    update: { passwordHash, role: 'admin', isActive: true, name: 'Admin' },
-    create: { email, passwordHash, role: 'admin', isActive: true, name: 'Admin' }
+    update: { password_hash, role: "admin", is_active: true, name: "Admin" },
+    create: { email, name: "Admin", role: "admin", is_active: true, password_hash },
   });
-  console.log('✓ Seeded admin:', email);
+  console.log("Seeded:", email);
 }
 
-main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); });
+main().finally(() => prisma.$disconnect());

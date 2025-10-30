@@ -1,20 +1,18 @@
-﻿import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
-import { SignOutButton } from '@/components/sign-out-button';
-import { auth } from '@/lib/auth';
-import { hasAtLeastManager, isAdmin } from '@/lib/rbac';
+import { SignOutButton } from "@/components/sign-out-button";
+import { hasAtLeastManager, isAdmin } from "@/lib/rbac";
 
 export default async function DashboardPage() {
-  const session = await auth();
-
-  if (!session) {
-    redirect('/login');
-  }
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
 
   const items: Array<{ href: string; label: string; requireAdmin?: boolean }> = [
-    { href: '/dashboard', label: 'Home' },
-    { href: '/admin/users', label: 'User management', requireAdmin: true },
+    { href: "/dashboard", label: "Home" },
+    { href: "/admin/users", label: "User management", requireAdmin: true },
   ];
 
   return (

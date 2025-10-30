@@ -1,27 +1,34 @@
-'use server';
+"use server";
 
-import { Role } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { assertRole } from '@/lib/rbac';
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { assertRole } from "@/lib/rbac";
+
+const ROLE_VALUES = ["admin", "manager", "member", "viewer"] as const;
+type Role = (typeof ROLE_VALUES)[number];
 
 const updateRoleSchema = z.object({
-  userId: z.string().uuid(),
-  role: z.nativeEnum(Role),
+  userId: z.string().cuid(),
+  role: z.enum(ROLE_VALUES),
 });
 
 const toggleActiveSchema = z.object({
-  userId: z.string().uuid(),
-  isActive: z.enum(['true', 'false']),
+  userId: z.string().cuid(),
+  isActive: z.enum(["true", "false"]),
 });
 
-const MANAGER_ROLES: Role[] = ['admin', 'manager'];
+const MANAGER_ROLES: Role[] = ["admin", "manager"];
 
 export async function updateUserRoleAction(formData: FormData) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/login");
+  }
   assertRole(session, MANAGER_ROLES);
 
   const parsed = updateRoleSchema.safeParse({
@@ -39,16 +46,19 @@ export async function updateUserRoleAction(formData: FormData) {
     return;
   }
 
-  await prisma.user.update({
+  await prisma.users.update({
     where: { id: userId },
     data: { role },
   });
 
-  revalidatePath('/admin/users');
+  revalidatePath("/admin/users");
 }
 
 export async function toggleUserActiveAction(formData: FormData) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/login");
+  }
   assertRole(session, MANAGER_ROLES);
 
   const parsed = toggleActiveSchema.safeParse({
@@ -66,10 +76,10 @@ export async function toggleUserActiveAction(formData: FormData) {
     return;
   }
 
-  await prisma.user.update({
+  await prisma.users.update({
     where: { id: userId },
-    data: { isActive: isActive === 'true' },
+    data: { is_active: isActive === "true" },
   });
 
-  revalidatePath('/admin/users');
+  revalidatePath("/admin/users");
 }
