@@ -1,100 +1,153 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
-type Props = {
-  canManage: boolean;
-};
+type Role = "admin" | "manager" | "member";
+type UserRow = { id: string; name: string | null; email: string; role: Role };
 
-export default function UsersClient({ canManage }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+export default function UsersClient() {
+  const [name, setName] = useState("Jane Doe");
+  const [email, setEmail] = useState("user@example.com");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const disabled = !canManage || busy;
+  const [showPw, setShowPw] = useState(false); // ← 追加: 表示切替
+  const [role, setRole] = useState<Role>("member");
+  const [rows, setRows] = useState<UserRow[]>([]);
+  const [pending, startTransition] = useTransition();
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
-  async function handleCreate() {
-    if (disabled) return;
-
-    setBusy(true);
+  async function load() {
+    setErr(null);
     try {
-      const response = await fetch("/api/admin/users", {
+      const res = await fetch("/api/admin/users", { cache: "no-store" });
+      if (!res.ok) throw new Error(`GET /api/admin/users ${res.status}`);
+      const data = await res.json();
+      setRows(Array.isArray(data?.users) ? data.users : data);
+    } catch (e: any) {
+      setErr(e.message ?? "Failed to load users");
+    }
+  }
+  useEffect(() => { load(); }, []);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+    setErr(null);
+    if (!email || !password) {
+      setErr("Email と Temporary password は必須です");
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/users", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role }),
       });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        const message = payload?.error ? `: ${payload.error}` : "";
-        alert(`ユーザーの作成に失敗しました${message}`);
-        return;
-      }
-
-      alert("ユーザーを作成しました");
-      setName("");
-      setEmail("");
+      const j = await safeJson(res);
+      if (!res.ok) throw new Error(j?.error ?? `POST failed: ${res.status}`);
+      setMsg("ユーザーを作成しました");
       setPassword("");
-      window.location.reload();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      alert(`通信エラーが発生しました: ${message}`);
-    } finally {
-      setBusy(false);
+      startTransition(load);
+    } catch (e: any) {
+      setErr(e.message ?? "Failed to create user");
+    }
+  }
+
+  async function onDelete(targetEmail: string) {
+    setErr(null);
+    if (!confirm(`Delete user: ${targetEmail} ?`)) return;
+    const prev = rows;
+    setRows(r => r.filter(x => x.email !== targetEmail)); // 楽観的更新
+    try {
+      const res = await fetch(`/api/admin/users?email=${encodeURIComponent(targetEmail)}`, { method: "DELETE" });
+      const j = await safeJson(res);
+      if (!res.ok) throw new Error(j?.error ?? `DELETE failed: ${res.status}`);
+    } catch (e: any) {
+      setRows(prev); // ロールバック
+      setErr(e.message ?? "Failed to delete user");
     }
   }
 
   return (
-    <section className="form-stack text-foreground">
-      <h2 className="text-xl font-semibold text-foreground">新しいユーザーを作成</h2>
-      <fieldset disabled={disabled} className="form-grid" style={{ border: "none", padding: 0, margin: 0 }}>
-        <label className="form-group">
-          <span className="text-sm text-foreground">氏名</span>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="山田 太郎"
-            className="input bg-card text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </label>
-        <label className="form-group">
-          <span className="text-sm text-foreground">メールアドレス</span>
-          <input
-            type="email"
-            inputMode="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="user@example.com"
-            className="input bg-card text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </label>
-        <label className="form-group">
-          <span className="text-sm text-foreground">仮パスワード（8文字以上）</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="At least 8 characters"
-            className="input bg-card text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={handleCreate}
-          className="button disabled:opacity-50"
-          disabled={disabled}
-          style={{ marginTop: "0.5rem" }}
-        >
-          {busy ? "作成中…" : "ユーザーを作成"}
-        </button>
-      </fieldset>
-      {!canManage && (
-        <p className="form-error" style={{ marginTop: "0.5rem" }}>
-          この操作を行う権限がありません（管理者またはマネージャーとしてログインしてください）。
-        </p>
-      )}
-    </section>
+    <>
+      <section className="card">
+        <h2>Create a new user</h2>
+        <form className="form-grid" onSubmit={onSubmit}>
+          <div className="form-group">
+            <label>Full name</label>
+            <input className="input" value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Temporary password</label>
+            <div className="input-with-addon">
+              <input
+                className="input"
+                type={showPw ? "text" : "password"}
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="button ghost"
+                onClick={() => setShowPw(s => !s)}
+                aria-label="Toggle password visibility"
+              >
+                {showPw ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Role</label>
+            <select className="input" value={role} onChange={e => setRole(e.target.value as Role)}>
+              <option value="member">member</option>
+              <option value="manager">manager</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div className="form-actions">
+            <button className="button" disabled={pending} type="submit">
+              {pending ? "Creating..." : "Create user"}
+            </button>
+          </div>
+          {msg && <p className="form-success">{msg}</p>}
+          {err && <p className="form-error">{err}</p>}
+        </form>
+      </section>
+
+      <section className="card">
+        <h2>Existing users</h2>
+        {err && <p className="form-error">{err}</p>}
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {rows?.length ? rows.map(u => (
+                <tr key={u.id}>
+                  <td>{u.name ?? "-"}</td>
+                  <td>{u.email}</td>
+                  <td>{u.role}</td>
+                  <td>
+                    <button className="button danger" onClick={() => onDelete(u.email)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              )) : <tr><td colSpan={4}>No users</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
   );
+}
+
+async function safeJson(res: Response) {
+  try { return await res.json(); } catch { return null; }
 }
