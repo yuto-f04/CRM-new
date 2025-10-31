@@ -98,6 +98,36 @@ async function main() {
     }
   });
 
+  const epicFoundation = await prisma.epics.upsert({
+    where: { id: "seed-epic-foundation" },
+    update: {
+      project_id: project.id,
+      name: "Foundation Setup",
+      description: "Core platform and authentication baseline."
+    },
+    create: {
+      id: "seed-epic-foundation",
+      project_id: project.id,
+      name: "Foundation Setup",
+      description: "Core platform and authentication baseline."
+    }
+  });
+
+  const epicExpansion = await prisma.epics.upsert({
+    where: { id: "seed-epic-expansion" },
+    update: {
+      project_id: project.id,
+      name: "Expansion Initiatives",
+      description: "Enhancements to extend CRM value."
+    },
+    create: {
+      id: "seed-epic-expansion",
+      project_id: project.id,
+      name: "Expansion Initiatives",
+      description: "Enhancements to extend CRM value."
+    }
+  });
+
   await prisma.project_members.upsert({
     where: { id: "seed-pm-admin" },
     update: { role: "owner", project_id: project.id, user_id: admin.id },
@@ -147,6 +177,7 @@ async function main() {
     where: { id: "seed-issue-todo" },
     update: {
       project_id: project.id,
+      epic_id: epicFoundation.id,
       reporter_id: admin.id,
       title: "Implement authentication flow",
       description: "Set up credential-based auth with session handoff.",
@@ -158,6 +189,7 @@ async function main() {
     create: {
       id: "seed-issue-todo",
       project_id: project.id,
+      epic_id: epicFoundation.id,
       reporter_id: admin.id,
       title: "Implement authentication flow",
       description: "Set up credential-based auth with session handoff.",
@@ -172,6 +204,7 @@ async function main() {
     where: { id: "seed-issue-progress" },
     update: {
       project_id: project.id,
+      epic_id: epicExpansion.id,
       reporter_id: manager.id,
       title: "Integrate analytics dashboard",
       description: "Embed KPI widgets for active accounts.",
@@ -183,6 +216,7 @@ async function main() {
     create: {
       id: "seed-issue-progress",
       project_id: project.id,
+      epic_id: epicExpansion.id,
       reporter_id: manager.id,
       title: "Integrate analytics dashboard",
       description: "Embed KPI widgets for active accounts.",
@@ -197,6 +231,7 @@ async function main() {
     where: { id: "seed-issue-done" },
     update: {
       project_id: project.id,
+      epic_id: epicFoundation.id,
       reporter_id: member.id,
       title: "Fix lead import bug",
       description: "Resolve CSV parsing issue for bulk imports.",
@@ -208,6 +243,7 @@ async function main() {
     create: {
       id: "seed-issue-done",
       project_id: project.id,
+      epic_id: epicFoundation.id,
       reporter_id: member.id,
       title: "Fix lead import bug",
       description: "Resolve CSV parsing issue for bulk imports.",

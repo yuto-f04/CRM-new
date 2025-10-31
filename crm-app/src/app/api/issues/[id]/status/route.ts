@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { IssueStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  assertProjectAccess,
-  ForbiddenProjectAccessError,
-  UnauthorizedProjectAccessError,
-} from "@/lib/project-access";
+import { assertProjectAccess } from "@/lib/project-access";
 
 type RouteParams = {
   params: { id: string };
@@ -36,10 +32,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     await assertProjectAccess(issue.project_id);
   } catch (error) {
-    if (error instanceof UnauthorizedProjectAccessError || error instanceof ForbiddenProjectAccessError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const updated = await prisma.issues.update({

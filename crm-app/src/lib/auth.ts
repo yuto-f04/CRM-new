@@ -31,11 +31,26 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = (user as any).role ?? "member";
+      if (user) {
+        token.role = (user as any).role ?? "member";
+        if ((user as any).id) {
+          token.sub = String((user as any).id);
+        }
+      }
       return token;
     },
     async session({ session, token }) {
-      (session as any).user.role = (token as any).role ?? "member";
+      const baseUser = session.user ?? { email: null, name: null, image: null };
+
+      session.user = {
+        ...baseUser,
+        id: typeof token?.sub === "string" ? token.sub : (baseUser as any)?.id ?? "",
+      };
+
+      if ((token as any)?.role) {
+        session.user.role = (token as any).role;
+      }
+
       return session;
     }
   },

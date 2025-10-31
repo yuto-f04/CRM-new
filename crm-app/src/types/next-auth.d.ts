@@ -1,26 +1,34 @@
-type AppRole = 'admin' | 'manager' | 'member' | 'viewer';
+import type { DefaultSession, DefaultUser } from "next-auth";
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
+type AppRole = "admin" | "manager" | "member" | "viewer";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: DefaultSession["user"] & {
       id: string;
-      email: string | null;
-      name: string | null;
-      image?: string | null;
       role?: AppRole;
     };
   }
 
-  interface User {
-    id: string;
-    email: string | null;
-    name: string | null;
-    image?: string | null;
+  interface User extends DefaultUser {
     role?: AppRole;
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/core/types" {
+  interface Session extends DefaultSession {
+    user: DefaultSession["user"] & {
+      id: string;
+      role?: AppRole;
+    };
+  }
+
+  interface User extends DefaultUser {
+    role?: AppRole;
+  }
+}
+
+declare module "next-auth/jwt" {
   interface JWT {
     role?: AppRole;
   }

@@ -4,45 +4,68 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import CasesBoard, { type CaseSummary } from "./cases-board";
 
-export const metadata = { title: "案件カンバン" };
+export const metadata = { title: "Deals" };
 
-async function fetchCases(): Promise<CaseSummary[]> {
+type CasesResult = {
+  cases: CaseSummary[];
+  error: string | null;
+};
+
+async function fetchCases(): Promise<CasesResult> {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const host = headers().get("host");
-  if (!host) throw new Error("Host header is missing");
+  const headersList = headers();
+  const host = headersList.get("host");
+  if (!host) {
+    return { cases: [], error: "Failed to load deals" };
+  }
+
   const protocol = host.includes("localhost") || host.startsWith("127.") ? "http" : "https";
   const baseUrl = `${protocol}://${host}`;
+  const cookieHeader = cookies().getAll().map(({ name, value }) => `${name}=${value}`).join("; ");
+  const commonHeaders = cookieHeader ? { Cookie: cookieHeader } : undefined;
 
-  const cookieValue = cookies().getAll().map(({ name, value }) => `${name}=${value}`).join("; ");
+  try {
+    const res = await fetch(`${baseUrl}/api/cases`, {
+      method: "GET",
+      headers: commonHeaders,
+      cache: "no-store",
+    });
 
-  const res = await fetch(`${baseUrl}/api/cases`, {
-    method: "GET",
-    headers: cookieValue ? { Cookie: cookieValue } : undefined,
-    cache: "no-store",
-  });
+    if (res.status === 401) redirect("/login");
+    if (!res.ok) {
+      return { cases: [], error: "Failed to load deals" };
+    }
 
-  if (res.status === 401) redirect("/login");
-  if (!res.ok) throw new Error("案件一覧の取得に失敗しました");
-
-  const payload = (await res.json()) as { cases: CaseSummary[] };
-  return payload.cases ?? [];
+    const payload = await res.json();
+    return { cases: (payload.cases ?? []) as CaseSummary[], error: null };
+  } catch {
+    return { cases: [], error: "Failed to load deals" };
+  }
 }
 
 export default async function CasesPage() {
-  const cases = await fetchCases();
+  const { cases, error } = await fetchCases();
 
   return (
     <div className="stack">
       <section className="card">
         <div className="page-header">
-          <h1>案件一覧</h1>
+          <h1>Deal Board</h1>
         </div>
-        <p className="text-sm text-muted-foreground">ステージをクリックして案件の進捗を更新できます。</p>
+        <p className="text-sm text-muted-foreground">Deals are grouped by stage for easy triage.</p>
+        {error ? (
+          <div className="mt-3 space-y-2">
+            <p className="form-error">{error}</p>
+            <a href="/cases" className="button ghost inline-flex w-max">
+              Retry
+            </a>
+          </div>
+        ) : null}
       </section>
 
-      <CasesBoard initialCases={cases} />
+      <CasesBoard initialCases={cases} initialError={error} />
     </div>
   );
 }

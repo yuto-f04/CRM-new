@@ -44,6 +44,11 @@ pnpm dev             # → http://localhost:3000 （5173 は Vite なのでNG）
 { "terminal.integrated.cwd": "${workspaceFolder}/crm-app" }
 ```
 
+## 運用メモ
+- 開発中の `.env` には `NODE_ENV` を書かない（Next.js のビルド挙動が壊れます）
+- データベースが怪しいときは `/api/_health/db` を開いて疎通を確認する
+- 参画可視性は `project_members` の参加情報のみを根拠にする（`owner_id` は参照しない）
+
 最後に：変更したファイル一覧（新規/上書き）と、実行手順（`pnpm install` → `pnpm approve-builds` → `pnpm db:generate` → `pnpm db:migrate` → `pnpm db:seed` → `pnpm dev`）を箇条書きで出力してください。
 これで root からのコマンドでも Next.js が 3000 番で起動し、db:* も root / crm-app 双方から実行できます。
 ## Git不要物のキャッシュ削除

@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,11 @@ export default async function DashboardPage() {
 
   const items: Array<{ href: string; label: string; requireAdmin?: boolean }> = [
     { href: "/dashboard", label: "Home" },
+    { href: "/projects", label: "Projects" },
+    { href: "/accounts", label: "Accounts" },
+    { href: "/contacts", label: "Contacts" },
+    { href: "/cases", label: "Cases" },
+    { href: "/me/profile", label: "My profile" },
     { href: "/admin/users", label: "User management", requireAdmin: true },
   ];
 

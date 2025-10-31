@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {
-  assertProjectAccess,
-  ForbiddenProjectAccessError,
-  UnauthorizedProjectAccessError,
-} from "@/lib/project-access";
+import { assertProjectAccess } from "@/lib/project-access";
 
 type RouteParams = {
   params: { id: string };
@@ -15,10 +11,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
   try {
     await assertProjectAccess(projectId);
   } catch (error) {
-    if (error instanceof UnauthorizedProjectAccessError || error instanceof ForbiddenProjectAccessError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const project = await prisma.projects.findUnique({
@@ -54,7 +47,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
   });
 
   if (!project) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   return NextResponse.json({ project });

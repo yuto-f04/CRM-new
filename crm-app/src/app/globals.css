@@ -90,3 +90,11 @@ body,
   background-color: #fff !important;
   color: #111 !important;
 }
+
+@layer components {
+  .form-error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}

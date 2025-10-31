@@ -1,6 +1,6 @@
 import Link from "next/link";
 import UsersClient from "./users-client";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 

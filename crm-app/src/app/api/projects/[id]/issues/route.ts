@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { IssuePriority, IssueType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  assertProjectAccess,
-  ForbiddenProjectAccessError,
-  UnauthorizedProjectAccessError,
-} from "@/lib/project-access";
+import { assertProjectAccess } from "@/lib/project-access";
 
 type RouteParams = {
   params: { id: string };
@@ -20,10 +16,7 @@ export async function POST(req: Request, { params }: RouteParams) {
   try {
     session = await assertProjectAccess(projectId);
   } catch (error) {
-    if (error instanceof UnauthorizedProjectAccessError || error instanceof ForbiddenProjectAccessError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const payload = await req.json().catch(() => null);
@@ -66,23 +59,14 @@ export async function POST(req: Request, { params }: RouteParams) {
     dueDateValue = parsed;
   }
 
-  const userEmail = session.user?.email;
-  if (!userEmail) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.users.findUnique({
-    where: { email: userEmail },
-    select: { id: true },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user?.id) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const issue = await prisma.issues.create({
     data: {
       project_id: projectId,
-      reporter_id: user.id,
+      reporter_id: session.user.id,
       title,
       ...(description !== undefined ? { description } : {}),
       ...(priorityValue ? { priority: priorityValue } : {}),

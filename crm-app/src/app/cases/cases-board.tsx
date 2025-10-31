@@ -18,11 +18,12 @@ export type CaseSummary = {
 
 type Props = {
   initialCases: CaseSummary[];
+  initialError?: string | null;
 };
 
-export default function CasesBoard({ initialCases }: Props) {
+export default function CasesBoard({ initialCases, initialError }: Props) {
   const [items, setItems] = useState(initialCases);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
 
   const grouped = useMemo(() => {
@@ -36,7 +37,7 @@ export default function CasesBoard({ initialCases }: Props) {
     for (const deal of items) {
       const key = deal.stage;
       if (!result[key]) result[key as CaseStageKey] = [];
-      result[key].push(deal);
+      result[key as CaseStageKey].push(deal);
     }
     return result;
   }, [items]);
@@ -51,19 +52,22 @@ export default function CasesBoard({ initialCases }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stage }),
       });
+
       let payload: any = null;
       try {
         payload = await res.json();
       } catch {
-        /* noop */
+        // ignore parse errors
       }
+
       if (!res.ok) {
-        setError(payload?.error ?? "ステージ更新に失敗しました。");
+        setError(payload?.error ?? "Failed to update deal stage");
         return;
       }
+
       setItems((prev) => prev.map((item) => (item.id === deal.id ? { ...item, stage } : item)));
     } catch {
-      setError("通信に失敗しました。");
+      setError("Failed to update deal stage");
     } finally {
       setLoadingMap((prev) => ({ ...prev, [deal.id]: false }));
     }
@@ -82,7 +86,7 @@ export default function CasesBoard({ initialCases }: Props) {
   return (
     <section className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">案件カンバン</h2>
+        <h2 className="text-xl font-semibold">Deal Pipeline</h2>
         {error ? <p className="form-error m-0">{error}</p> : null}
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -92,7 +96,7 @@ export default function CasesBoard({ initialCases }: Props) {
             <div key={column.key} className="border border-border rounded p-3 bg-muted/20 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold">{column.label}</h3>
-                <span className="text-xs text-muted-foreground">{deals.length}件</span>
+                <span className="text-xs text-muted-foreground">{deals.length} deals</span>
               </div>
               <div className="space-y-3">
                 {deals.length ? (
@@ -104,7 +108,7 @@ export default function CasesBoard({ initialCases }: Props) {
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="text-sm font-semibold">{deal.title}</h4>
                           <Link href={`/cases/${deal.id}`} className="text-xs text-primary hover:underline">
-                            詳細
+                            View
                           </Link>
                         </div>
                         {deal.description ? (
@@ -113,19 +117,10 @@ export default function CasesBoard({ initialCases }: Props) {
                           </p>
                         ) : null}
                         <div className="text-xs text-muted-foreground space-y-1">
-                          {deal.account?.name ? <p>アカウント: {deal.account.name}</p> : null}
-                          {deal.contact ? (
-                            <p>
-                              担当者:{" "}
-                              {[deal.contact.first_name, deal.contact.last_name].filter(Boolean).join(" ") ||
-                                deal.contact.email ||
-                                "未設定"}
-                            </p>
-                          ) : null}
-                          {deal.owner ? (
-                            <p>担当メンバー: {deal.owner.name ?? deal.owner.email ?? "未設定"}</p>
-                          ) : null}
-                          {deal.project_id ? <p className="text-xs text-primary">紐付プロジェクトあり</p> : null}
+                          {deal.account?.name ? <p>Account: {deal.account.name}</p> : null}
+                          {deal.contact ? <p>Contact: {formatContactName(deal)}</p> : null}
+                          {deal.owner ? <p>Owner: {deal.owner.name ?? deal.owner.email ?? "Unassigned"}</p> : null}
+                          {deal.project_id ? <p className="text-primary">Linked project</p> : null}
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -133,17 +128,17 @@ export default function CasesBoard({ initialCases }: Props) {
                             onClick={() => advance(deal)}
                             disabled={!next || loading}
                           >
-                            {next ? `→ ${CASE_STAGE_COLUMNS.find((col) => col.key === next)?.label}` : "最終ステージ"}
+                            {next ? `Next: ${CASE_STAGE_COLUMNS.find((col) => col.key === next)?.label ?? ""}` : "No next"}
                           </button>
                           <button className="button danger" onClick={() => markLost(deal)} disabled={loading}>
-                            失注
+                            Mark lost
                           </button>
                         </div>
                       </article>
                     );
                   })
                 ) : (
-                  <p className="text-xs text-muted-foreground text-center py-4">案件はありません</p>
+                  <p className="text-xs text-muted-foreground text-center py-4">No deals in this stage</p>
                 )}
               </div>
             </div>
@@ -152,4 +147,11 @@ export default function CasesBoard({ initialCases }: Props) {
       </div>
     </section>
   );
+}
+
+function formatContactName(deal: CaseSummary): string {
+  const contact = deal.contact;
+  if (!contact) return "Unassigned";
+  const fullName = [contact.last_name, contact.first_name].filter(Boolean).join(" ");
+  return fullName || contact.email || "Unassigned";
 }

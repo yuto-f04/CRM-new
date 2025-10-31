@@ -24,11 +24,12 @@ export type IssueSummary = {
 type Props = {
   projectId: string;
   initialIssues: IssueSummary[];
+  initialError?: string | null;
 };
 
-export default function KanbanBoard({ projectId, initialIssues }: Props) {
+export default function KanbanBoard({ projectId, initialIssues, initialError }: Props) {
   const [issues, setIssues] = useState<IssueSummary[]>(initialIssues);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
 
   const issuesByStatus = useMemo(() => {
@@ -56,6 +57,7 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
 
     setError(null);
     setLoadingMap((prev) => ({ ...prev, [issue.id]: true }));
+
     try {
       const res = await fetch(`/api/issues/${issue.id}/status`, {
         method: "PATCH",
@@ -67,11 +69,11 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
       try {
         payload = await res.json();
       } catch {
-        // ignore json parse failure
+        // ignore parse failures
       }
 
       if (!res.ok) {
-        setError(payload?.error ?? "ステータス更新に失敗しました。");
+        setError(payload?.error ?? "Failed to update issue status");
         return;
       }
 
@@ -80,7 +82,7 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
         prev.map((item) => (item.id === issue.id ? { ...item, status: updated?.status ?? nextStatus } : item)),
       );
     } catch {
-      setError("通信に失敗しました。");
+      setError("Failed to update issue status");
     } finally {
       setLoadingMap((prev) => ({ ...prev, [issue.id]: false }));
     }
@@ -89,8 +91,8 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
   return (
     <section className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">イシューカンバン</h2>
-        <p className="text-sm text-muted-foreground">プロジェクトID: {projectId}</p>
+        <h2 className="text-xl font-semibold">Issue Board</h2>
+        <p className="text-sm text-muted-foreground">Project ID: {projectId}</p>
       </div>
       {error ? <p className="form-error mb-4">{error}</p> : null}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -100,12 +102,12 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
             <div key={column.key} className="border border-border rounded p-3 bg-muted/20 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold">{column.label}</h3>
-                <span className="text-xs text-muted-foreground">{columnIssues.length}件</span>
+                <span className="text-xs text-muted-foreground">{columnIssues.length} items</span>
               </div>
               <div className="space-y-3">
                 {columnIssues.length ? (
                   columnIssues.map((issue) => {
-                    const nextStatus = nextIssueStatus(issue.status);
+                    const nextStatusForIssue = nextIssueStatus(issue.status);
                     return (
                       <article key={issue.id} className="border border-border rounded bg-background p-3 space-y-2">
                         <h4 className="text-sm font-semibold">{issue.title}</h4>
@@ -115,34 +117,40 @@ export default function KanbanBoard({ projectId, initialIssues }: Props) {
                           </p>
                         ) : null}
                         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          {issue.type ? <span>種別: {issue.type}</span> : null}
-                          {issue.priority ? <span>優先度: {issue.priority}</span> : null}
+                          {issue.type ? <span>Type: {issue.type}</span> : null}
+                          {issue.priority ? <span>Priority: {issue.priority}</span> : null}
                           {issue.due_date ? (
                             <span>
-                              期限: {new Date(issue.due_date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}
+                              Due:{" "}
+                              {new Date(issue.due_date).toLocaleDateString("ja-JP", {
+                                month: "short",
+                                day: "numeric",
+                              })}
                             </span>
                           ) : null}
                         </div>
                         {issue.assignees.length ? (
                           <div className="text-xs text-muted-foreground">
-                            担当:{" "}
+                            Assignees:{" "}
                             {issue.assignees
-                              .map((assignee) => assignee.name ?? assignee.email ?? "未設定")
+                              .map((assignee) => assignee.name ?? assignee.email ?? "Unassigned")
                               .join(", ")}
                           </div>
                         ) : null}
                         <button
                           className="button ghost w-full"
                           onClick={() => advanceIssue(issue)}
-                          disabled={!nextStatus || loadingMap[issue.id]}
+                          disabled={!nextStatusForIssue || loadingMap[issue.id]}
                         >
-                          {nextStatus ? `→ ${ISSUE_STATUS_COLUMNS.find((col) => col.key === nextStatus)?.label}` : "最終列"}
+                          {nextStatusForIssue
+                            ? `Move to ${ISSUE_STATUS_COLUMNS.find((col) => col.key === nextStatusForIssue)?.label ?? ""}`
+                            : "No further status"}
                         </button>
                       </article>
                     );
                   })
                 ) : (
-                  <p className="text-xs text-muted-foreground text-center py-4">カードがありません</p>
+                  <p className="text-xs text-muted-foreground text-center py-4">No issues in this column</p>
                 )}
               </div>
             </div>
